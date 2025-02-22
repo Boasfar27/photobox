@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 const frames = {
   none: {
-    draw: (ctx, x, y, width, height) => {}, // Empty function for no frame
+    draw: (ctx, x, y, width, height) => { }, // Empty function for no frame
   },
   pastel: {
     draw: (ctx, x, y, width, height) => {
       const drawSticker = (x, y, type) => {
-        switch(type) {
+        switch (type) {
           case 'star':
             ctx.fillStyle = "#FFD700";
             ctx.beginPath();
@@ -28,7 +28,7 @@ const frames = {
             break;
           case 'flower':
             ctx.fillStyle = "#FF9BE4";
-            for(let i = 0; i < 5; i++) {
+            for (let i = 0; i < 5; i++) {
               ctx.beginPath();
               const angle = (i * 2 * Math.PI) / 5;
               ctx.ellipse(
@@ -63,69 +63,248 @@ const frames = {
         }
       };
 
-         // Top left corner
-         drawSticker(x + 11, y + 5, 'bow');
-         drawSticker(x - 18, y + 95, 'heart');
-         
-         // Top right corner
-         drawSticker(x + width - 160, y + 10, 'star');
-         drawSticker(x + width - 1, y + 50, 'heart');
-         
-         // Bottom left corner
-         drawSticker(x + 120, y + height - 20, 'heart');
-         drawSticker(x + 20, y + height - 20, 'star');
-         
-         // Bottom right corner
-         drawSticker(x + width - 125, y + height - 5, 'bow');
-         drawSticker(x + width - 10, y + height - 45, 'heart');
-       }
-     },
+      // Top left corner
+      drawSticker(x + 11, y + 5, 'bow');
+      drawSticker(x - 18, y + 95, 'heart');
 
-  
+      // Top right corner
+      drawSticker(x + width - 160, y + 10, 'star');
+      drawSticker(x + width - 1, y + 50, 'heart');
+
+      // Bottom left corner
+      drawSticker(x + 120, y + height - 20, 'heart');
+      drawSticker(x + 20, y + height - 20, 'star');
+
+      // Bottom right corner
+      drawSticker(x + width - 125, y + height - 5, 'bow');
+      drawSticker(x + width - 10, y + height - 45, 'heart');
+    }
+  },
+
+
   cute: {
     draw: (ctx, x, y, width, height) => {
-      const drawStar = (centerX, centerY, size, color = "#FFD700") => {
-        ctx.fillStyle = color;
+      // Fungsi untuk menggambar mahkota
+      const drawCrown = (centerX, centerY, size) => {
+        ctx.fillStyle = "#FFD700"; // Warna emas
         ctx.beginPath();
-        for(let i = 0; i < 5; i++) {
-          const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-          const point = i === 0 ? 'moveTo' : 'lineTo';
-          ctx[point](
-            centerX + size * Math.cos(angle),
-            centerY + size * Math.sin(angle)
-          );
-        }
+
+        // Bagian dasar mahkota
+        ctx.moveTo(centerX - size, centerY);
+        ctx.lineTo(centerX - size * 0.8, centerY - size * 1.2);
+        ctx.lineTo(centerX - size * 0.4, centerY - size * 0.8);
+        ctx.lineTo(centerX, centerY - size * 1.5);
+        ctx.lineTo(centerX + size * 0.4, centerY - size * 0.8);
+        ctx.lineTo(centerX + size * 0.8, centerY - size * 1.2);
+        ctx.lineTo(centerX + size, centerY);
         ctx.closePath();
         ctx.fill();
-      };
 
-      const drawCloud = (centerX, centerY) => {
-        ctx.fillStyle = "#87CEEB";
-        const cloudParts = [
-          { x: 0, y: 0, r: 14 },
-          { x: -6, y: 2, r: 10 },
-          { x: 6, y: 2, r: 10 },
-        ];
-        cloudParts.forEach(part => {
+        // Hiasan permata mahkota
+        const gemColors = ["#FF69B4", "#FF1493", "#FFB6C1"];
+        [-0.6, 0, 0.6].forEach((offset, i) => {
           ctx.beginPath();
-          ctx.arc(centerX + part.x, centerY + part.y, part.r, 0, Math.PI * 2);
+          ctx.fillStyle = gemColors[i];
+          ctx.arc(centerX + offset * size, centerY - size * 0.9, size * 0.15, 0, Math.PI * 2);
           ctx.fill();
         });
       };
 
-      // Draw decorations around the frame
-        // Top corners
-        drawStar(x + 150, y + 18, 15, "#FFD700");
-        drawCloud(x + 20, y + 5);
-        drawStar(x + width - 1, y + 45, 12, "#FF69B4");
-        drawCloud(x + width - 80, y + 5);
+      // Fungsi untuk menggambar balon
+      const drawBalloon = (centerX, centerY, size, color) => {
+        // Balon
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
+        ctx.fill();
 
-        // Bottom corners
-        drawCloud(x + 150, y + height - 5);
-        drawStar(x + 0, y + height - 65, 15, "#9370DB");
-        drawCloud(x + width - 5, y + height - 85);
-        drawStar(x + width - 120, y + height - 5, 12, "#40E0D0");
-   }
+        // Highlight pada balon
+        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.beginPath();
+        ctx.arc(centerX - size * 0.3, centerY - size * 0.3, size * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Tali balon
+        ctx.beginPath();
+        ctx.strokeStyle = "#FF69B4";
+        ctx.lineWidth = 2;
+        ctx.moveTo(centerX, centerY + size);
+        ctx.quadraticCurveTo(
+          centerX + size * 0.2,
+          centerY + size * 1.5,
+          centerX - size * 0.1,
+          centerY + size * 2
+        );
+        ctx.stroke();
+      };
+
+      // Menggambar dekorasi di sekitar frame
+      // Mahkota di sudut atas
+      drawCrown(x + 150, y + 30, 25);
+      drawCrown(x + width - 150, y + 30, 25);
+
+      // Balon di berbagai sudut
+      const balloonColors = [
+        "#FF69B4", // Pink
+        "#FF1493", // Deep Pink
+        "#FFB6C1", // Light Pink
+        "#FF69B4"  // Pink
+      ];
+
+      // Balon di sudut
+      drawBalloon(x + 50, y + 50, 20, balloonColors[0]);
+      drawBalloon(x + width - 50, y + 50, 25, balloonColors[1]);
+      drawBalloon(x + 50, y + height - 50, 25, balloonColors[2]);
+      drawBalloon(x + width - 50, y + height - 50, 20, balloonColors[3]);
+
+      // Balon tambahan di tengah sisi
+      drawBalloon(x + width / 2, y + 30, 22, balloonColors[1]);
+      drawBalloon(x + width / 2, y + height - 30, 22, balloonColors[2]);
+
+      // Mahkota di sudut bawah
+      drawCrown(x + 150, y + height - 20, 20);
+      drawCrown(x + width - 150, y + height - 20, 20);
+    }
+  },
+
+  indonesia: {
+    draw: (ctx, x, y, width, height) => {
+      // Fungsi untuk menggambar bendera Indonesia
+      const drawFlag = (centerX, centerY, flagWidth) => {
+        const flagHeight = flagWidth * 0.67;
+
+        // Bagian merah
+        ctx.fillStyle = "#FF0000";
+        ctx.fillRect(centerX, centerY, flagWidth, flagHeight / 2);
+
+        // Bagian putih
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(centerX, centerY + flagHeight / 2, flagWidth, flagHeight / 2);
+
+        // Tiang bendera
+        ctx.fillStyle = "#8B4513";
+        ctx.fillRect(centerX - 5, centerY - 5, 5, flagHeight + 10);
+      };
+
+      // Fungsi untuk menggambar Garuda
+      // const drawGaruda = (centerX, centerY, size) => {
+      //   ctx.fillStyle = "#FFD700";
+      //   ctx.beginPath();
+      //   ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
+      //   ctx.fill();
+
+      //   // Detail Garuda (simplified)
+      //   ctx.strokeStyle = "#000000";
+      //   ctx.lineWidth = 2;
+      //   ctx.beginPath();
+      //   ctx.moveTo(centerX - size / 2, centerY);
+      //   ctx.quadraticCurveTo(centerX, centerY - size / 2, centerX + size / 2, centerY);
+      //   ctx.quadraticCurveTo(centerX, centerY + size / 2, centerX - size / 2, centerY);
+      //   ctx.stroke();
+      // };
+
+      // Menggambar dekorasi bendera dan Garuda
+      drawFlag(x + 10, y + 10, 60);
+      drawFlag(x + width - 70, y + 10, 60);
+      // drawGaruda(x + width / 2, y + 30, 25);
+      drawFlag(x + 10, y + height - 70, 60);
+      drawFlag(x + width - 70, y + height - 70, 60);
+    }
+  },
+
+  loveIOS: {
+    draw: (ctx, x, y, width, height) => {
+      // Fungsi untuk menggambar hati iOS style
+      const drawIOSHeart = (centerX, centerY, size, color) => {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY + size * 0.3);
+        ctx.bezierCurveTo(
+          centerX, centerY,
+          centerX - size, centerY,
+          centerX - size, centerY + size * 0.3
+        );
+        ctx.bezierCurveTo(
+          centerX - size, centerY + size * 0.6,
+          centerX - size * 0.5, centerY + size,
+          centerX, centerY + size * 1.2
+        );
+        ctx.bezierCurveTo(
+          centerX + size * 0.5, centerY + size,
+          centerX + size, centerY + size * 0.6,
+          centerX + size, centerY + size * 0.3
+        );
+        ctx.bezierCurveTo(
+          centerX + size, centerY,
+          centerX, centerY,
+          centerX, centerY + size * 0.3
+        );
+        ctx.fill();
+
+        // Menambahkan efek gradient
+        const gradient = ctx.createRadialGradient(
+          centerX, centerY, size * 0.1,
+          centerX, centerY, size
+        );
+        gradient.addColorStop(0, "rgba(255, 255, 255, 0.2)");
+        gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      };
+
+      // Fungsi untuk menggambar emoji iOS style
+      const drawIOSEmoji = (centerX, centerY, size, type) => {
+        ctx.fillStyle = "#FFE15D";
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Menambahkan detail berdasarkan tipe emoji
+        switch (type) {
+          case 'smile':
+            ctx.beginPath();
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = 2;
+            ctx.arc(centerX, centerY, size * 0.6, 0, Math.PI, false);
+            ctx.stroke();
+            // Mata
+            ctx.fillStyle = "#000";
+            ctx.beginPath();
+            ctx.arc(centerX - size * 0.3, centerY - size * 0.2, size * 0.1, 0, Math.PI * 2);
+            ctx.arc(centerX + size * 0.3, centerY - size * 0.2, size * 0.1, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+          case 'love':
+            // Mata love
+            drawIOSHeart(centerX - size * 0.3, centerY - size * 0.2, size * 0.2, "#FF1493");
+            drawIOSHeart(centerX + size * 0.3, centerY - size * 0.2, size * 0.2, "#FF1493");
+            // Mulut
+            ctx.beginPath();
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = 2;
+            ctx.arc(centerX, centerY + size * 0.2, size * 0.3, 0, Math.PI, false);
+            ctx.stroke();
+            break;
+        }
+      };
+
+      // Menggambar dekorasi
+      const heartColors = ["#FF1493", "#FF69B4", "#FFB6C1", "#FF0000"];
+
+      // Hearts di sudut
+      drawIOSHeart(x + 30, y + 30, 20, heartColors[0]);
+      drawIOSHeart(x + width - 30, y + 30, 20, heartColors[1]);
+      drawIOSHeart(x + 30, y + height - 30, 20, heartColors[2]);
+      drawIOSHeart(x + width - 30, y + height - 30, 20, heartColors[3]);
+
+      // Emoji di tengah sisi
+      drawIOSEmoji(x + width / 2, y + 30, 25, 'love');
+      drawIOSEmoji(x + width / 2, y + height - 30, 25, 'smile');
+
+      // Hearts tambahan
+      drawIOSHeart(x + width / 4, y + height / 2, 15, heartColors[0]);
+      drawIOSHeart(x + width * 3 / 4, y + height / 2, 15, heartColors[2]);
+    }
   }
 };
 
@@ -142,12 +321,12 @@ const PhotoPreview = ({ capturedImages }) => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
 
-  
-    const imgWidth = 400;  
-    const imgHeight = 300; 
-    const borderSize = 40;  
-    const photoSpacing = 20;  
-    const textHeight = 50;  
+
+    const imgWidth = 400;
+    const imgHeight = 300;
+    const borderSize = 40;
+    const photoSpacing = 20;
+    const textHeight = 50;
     const totalHeight = (imgHeight * 4) + (photoSpacing * 3) + (borderSize * 2) + textHeight;
 
     canvas.width = imgWidth + borderSize * 2;
@@ -172,59 +351,62 @@ const PhotoPreview = ({ capturedImages }) => {
         let sourceY = 0;
 
         if (imageRatio > targetRatio) {
-            sourceWidth = sourceHeight * targetRatio;
-            sourceX = (img.width - sourceWidth) / 2;
+          sourceWidth = sourceHeight * targetRatio;
+          sourceX = (img.width - sourceWidth) / 2;
         } else {
-            sourceHeight = sourceWidth / targetRatio;
-            sourceY = (img.height - sourceHeight) / 2;
+          sourceHeight = sourceWidth / targetRatio;
+          sourceY = (img.height - sourceHeight) / 2;
         }
 
         ctx.drawImage(
-            img,
-            sourceX, sourceY, sourceWidth, sourceHeight, 
-            borderSize, yOffset, imgWidth, imgHeight      
+          img,
+          sourceX, sourceY, sourceWidth, sourceHeight,
+          borderSize, yOffset, imgWidth, imgHeight
         );
 
         if (frames[selectedFrame] && typeof frames[selectedFrame].draw === 'function') {
           frames[selectedFrame].draw(
-              ctx,
-              borderSize,
-              yOffset,
-              imgWidth,
-              imgHeight
+            ctx,
+            borderSize,
+            yOffset,
+            imgWidth,
+            imgHeight
           );
-      }
-        
+        }
+
         imagesLoaded++;
 
         if (imagesLoaded === capturedImages.length) {
           const now = new Date();
-          const timestamp = now.toLocaleDateString('en-US', {
-            month: '2-digit',
+          const timestamp = now.toLocaleDateString('id-ID', {
             day: '2-digit',
+            month: '2-digit',
             year: 'numeric'
-          }) + '  ' + 
-          now.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          });
+          }) + '  ' +
+            now.toLocaleTimeString('id-ID', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            });
 
-          ctx.fillStyle = "#000000";
-          ctx.font = "20px Arial";
+          // Menggambar timestamp
+          ctx.fillStyle = "#FF1493"; // Deep Pink
+          ctx.font = "bold 20px Arial";
           ctx.textAlign = "center";
-          
-          ctx.fillText("Picapica  " + timestamp, canvas.width / 2, totalHeight - borderSize * 1);
-
-
-          ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; 
-          ctx.font = "12px Arial";  
-          ctx.textAlign = "center";
-
           ctx.fillText(
-              "© 2025 AW",
-              canvas.width - borderSize,
-              totalHeight - borderSize / 2
+            "Boasfar Photobox  " + timestamp,
+            canvas.width / 2,
+            totalHeight - borderSize * 1.5
+          );
+
+          // Menggambar watermark di bawah timestamp
+          ctx.fillStyle = "rgba(255, 20, 147, 0.7)";
+          ctx.font = "12px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            "© 2025 Boasfar",
+            canvas.width / 2, // Posisi horizontal di tengah
+            totalHeight - borderSize * 0.8 // Posisi vertical di bawah timestamp
           );
         }
       };
@@ -248,27 +430,86 @@ const PhotoPreview = ({ capturedImages }) => {
 
   return (
     <div className="photo-preview">
-      <h2>Photo Strip Preview</h2>
+      <h2 style={{
+        color: "#FF1493",
+        fontSize: "2rem",
+        marginBottom: "1.5rem",
+        textShadow: "2px 2px 4px rgba(255, 20, 147, 0.2)"
+      }}>
+        Pratinjau Foto
+      </h2>
 
       <div className="color-options">
-        <button onClick={() => setStripColor("white")}>White</button>
-        <button onClick={() => setStripColor("#fceee9")}>Pink</button>
-        <button onClick={() => setStripColor("#dde6d5")}>Green</button>
-        <button onClick={() => setStripColor("#adc3e5")}>Blue</button>
-        <button onClick={() => setStripColor("#FFF2CC")}>Yellow</button>
-        <button onClick={() => setStripColor("#dbcfff")}>Purple</button>
+        <button onClick={() => setStripColor("white")}>Putih</button>
+        <button onClick={() => setStripColor("#fceee9")}>Merah Muda</button>
+        <button onClick={() => setStripColor("#dde6d5")}>Hijau</button>
+        <button onClick={() => setStripColor("#adc3e5")}>Biru</button>
+        <button onClick={() => setStripColor("#FFF2CC")}>Kuning</button>
+        <button onClick={() => setStripColor("#dbcfff")}>Ungu</button>
       </div>
 
       <div className="frame-options">
-        <button onClick={() => setSelectedFrame("pastel")}>Girlypop Stickers</button>
-        <button onClick={() => setSelectedFrame("cute")}>Cute Stickers</button>
+        <button onClick={() => setSelectedFrame("pastel")}>Stiker Girly</button>
+        <button onClick={() => setSelectedFrame("cute")}>Stiker Lucu</button>
+        <button onClick={() => setSelectedFrame("indonesia")}>Bendera Indonesia</button>
+        <button onClick={() => setSelectedFrame("loveIOS")}>Love iOS</button>
       </div>
 
       <canvas ref={stripCanvasRef} className="photo-strip" />
 
       <div className="strip-buttons">
-        <button onClick={downloadPhotoStrip}>📥 Download Photo Strip</button>
-        <button onClick={() => navigate("/")}>🔄 Take New Photos</button>
+        <button
+          onClick={downloadPhotoStrip}
+          style={{
+            background: "linear-gradient(45deg, #FF1493, #FF69B4)",
+            padding: "12px 25px",
+            margin: "10px",
+            border: "none",
+            borderRadius: "25px",
+            color: "white",
+            fontWeight: "bold",
+            boxShadow: "0 4px 15px rgba(255, 20, 147, 0.3)",
+            transition: "all 0.3s ease"
+          }}
+          onMouseOver={(e) => {
+            e.target.style.background = "linear-gradient(45deg, #FF69B4, #FFB6C1)";
+            e.target.style.transform = "translateY(-3px)";
+            e.target.style.boxShadow = "0 6px 20px rgba(255, 20, 147, 0.5)";
+          }}
+          onMouseOut={(e) => {
+            e.target.style.background = "linear-gradient(45deg, #FF1493, #FF69B4)";
+            e.target.style.transform = "translateY(0)";
+            e.target.style.boxShadow = "0 4px 15px rgba(255, 20, 147, 0.3)";
+          }}
+        >
+          📥 Unduh Foto
+        </button>
+        <button
+          onClick={() => navigate("/")}
+          style={{
+            background: "linear-gradient(45deg, #FF1493, #FF69B4)",
+            padding: "12px 25px",
+            margin: "10px",
+            border: "none",
+            borderRadius: "25px",
+            color: "white",
+            fontWeight: "bold",
+            boxShadow: "0 4px 15px rgba(255, 20, 147, 0.3)",
+            transition: "all 0.3s ease"
+          }}
+          onMouseOver={(e) => {
+            e.target.style.background = "linear-gradient(45deg, #FF69B4, #FFB6C1)";
+            e.target.style.transform = "translateY(-3px)";
+            e.target.style.boxShadow = "0 6px 20px rgba(255, 20, 147, 0.5)";
+          }}
+          onMouseOut={(e) => {
+            e.target.style.background = "linear-gradient(45deg, #FF1493, #FF69B4)";
+            e.target.style.transform = "translateY(0)";
+            e.target.style.boxShadow = "0 4px 15px rgba(255, 20, 147, 0.3)";
+          }}
+        >
+          🔄 Ambil Foto Baru
+        </button>
       </div>
     </div>
   );
